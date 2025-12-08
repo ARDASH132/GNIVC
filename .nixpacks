@@ -10,3 +10,7 @@ cmd = "cd backend && node server.js"
 [[start.envs]]
 name = "PORT"
 value = "3000"
+
+[[start.envs]]
+name = "NODE_ENV"
+value = "production"
