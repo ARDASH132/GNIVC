@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Государственная система авторизации</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="mobile-header">
+        <div class="mobile-logo">
+            <i class="fas fa-user-shield"></i>
+            <span>ГосАвторизация</span>
+        </div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="mobile-logo">
+                <i class="fas fa-user-shield"></i>
+                <span>ГосАвторизация</span>
+            </div>
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-items">
+            <a href="#" class="mobile-menu-item active" data-section="user-auth">
+                <i class="fas fa-user"></i>
+                <span>Для граждан</span>
+            </a>
+            <a href="#" class="mobile-menu-item" data-section="admin-auth">
+                <i class="fas fa-user-tie"></i>
+                <span>Для сотрудников</span>
+            </a>
+            <a href="#" class="mobile-menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Помощь</span>
+            </a>
+            <a href="#" class="mobile-menu-item">
+                <i class="fas fa-phone-alt"></i>
+                <span>Техподдержка</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="auth-wrapper">
+            <!-- Выбор типа входа -->
+            <div class="auth-type-selector" id="authTypeSelector">
+                <h1 class="main-title">Государственная система авторизации</h1>
+                <p class="subtitle-main">Выберите способ входа в систему</p>
+                
+                <div class="auth-type-cards">
+                    <div class="auth-type-card active" data-type="user">
+                        <div class="card-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>Для граждан</h3>
+                        <p>Авторизация через паспортные данные, ФИО и СНИЛС с подтверждением через Госуслуги</p>
+                        <button class="btn-select-type" data-type="user">Войти как гражданин</button>
+                    </div>
+                    
+                    <div class="auth-type-card" data-type="admin">
+                        <div class="card-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h3>Для сотрудников</h3>
+                        <p>Авторизация по логину и паролю для сотрудников государственных учреждений</p>
+                        <button class="btn-select-type" data-type="admin">Войти как сотрудник</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Авторизация гражданина -->
+            <div class="user-auth-section" id="userAuthSection" style="display: none;">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-user"></i>
+                        <span>Авторизация гражданина</span>
+                    </div>
+                    <button class="btn-back-to-select" id="userBackToSelect">
+                        <i class="fas fa-arrow-left"></i> Назад к выбору
+                    </button>
+                </div>
+
+                <div class="progress-steps">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Личные данные</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Паспортные данные</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Подтверждение</div>
+                    </div>
+                </div>
+                
+                <div class="mobile-progress-bar">
+                    <div class="mobile-progress-fill" id="userMobileProgressFill"></div>
+                </div>
+
+                <div class="auth-forms">
+                    <!-- Шаг 1: Личные данные -->
+                    <form id="personalDataForm" class="form-step active">
+                        <h2><i class="fas fa-id-card"></i> Личные данные</h2>
+                        <p class="step-description">Введите ваши персональные данные</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lastName">Фамилия *</label>
+                                <input type="text" id="lastName" placeholder="Иванов" required>
+                                <div class="error-message" id="lastNameError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="firstName">Имя *</label>
+                                <input type="text" id="firstName" placeholder="Иван" required>
+                                <div class="error-message" id="firstNameError"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="middleName">Отчество</label>
+                            <input type="text" id="middleName" placeholder="Иванович">
+                            <div class="error-message" id="middleNameError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="birthDate">Дата рождения *</label>
+                            <input type="date" id="birthDate" required>
+                            <div class="error-message" id="birthDateError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="snils">СНИЛС *</label>
+                            <input type="text" id="snils" placeholder="XXX-XXX-XXX YY" required data-mask="snils">
+                            <div class="hint">Формат: XXX-XXX-XXX YY (где YY - контрольное число)</div>
+                            <div class="error-message" id="snilsError"></div>
+                        </div>
+                        
+                        <div class="mobile-form-hint">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Поля, отмеченные *, обязательны для заполнения</span>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Далее: паспортные данные</span>
+                            <i class="fas fa-arrow-right btn-icon"></i>
+                        </button>
+                    </form>
+
+                    <!-- Шаг 2: Паспортные данные -->
+                    <form id="passportDataForm" class="form-step">
+                        <h2><i class="fas fa-passport"></i> Паспортные данные</h2>
+                        <p class="step-description">Введите данные вашего паспорта гражданина РФ</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="passportSeries">Серия паспорта *</label>
+                                <input type="text" id="passportSeries" placeholder="1234" maxlength="4" required>
+                                <div class="error-message" id="passportSeriesError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="passportNumber">Номер паспорта *</label>
+                                <input type="text" id="passportNumber" placeholder="567890" maxlength="6" required>
+                                <div class="error-message" id="passportNumberError"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="passportIssuedBy">Кем выдан *</label>
+                            <input type="text" id="passportIssuedBy" placeholder="ОУФМС России по г. Москве" required>
+                            <div class="error-message" id="passportIssuedByError"></div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="passportIssueDate">Дата выдачи *</label>
+                                <input type="date" id="passportIssueDate" required>
+                                <div class="error-message" id="passportIssueDateError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="passportDepartmentCode">Код подразделения *</label>
+                                <input type="text" id="passportDepartmentCode" placeholder="123-456" required data-mask="department-code">
+                                <div class="error-message" id="passportDepartmentCodeError"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group checkbox">
+                            <input type="checkbox" id="passportConsent" required>
+                            <label for="passportConsent">Подтверждаю правильность введенных паспортных данных</label>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="button" class="btn-secondary" id="backToPersonalData">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Назад</span>
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Далее: подтверждение</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Шаг 3: Подтверждение через Госуслуги -->
+                    <form id="gosuslugiForm" class="form-step">
+                        <h2><i class="fas fa-shield-alt"></i> Подтверждение личности</h2>
+                        <p class="step-description">Для завершения авторизации подтвердите вашу личность через Госуслуги</p>
+                        
+                        <div class="gosuslugi-info">
+                            <div class="gosuslugi-logo">
+                                <i class="fas fa-passport"></i>
+                                <span>Госуслуги</span>
+                            </div>
+                            <p>Для подтверждения вашей личности необходимо войти через портал Госуслуги.</p>
+                            
+                            <div class="user-data-summary">
+                                <h3><i class="fas fa-user-check"></i> Данные для подтверждения:</h3>
+                                
+                                <div class="data-row">
+                                    <span class="data-label">ФИО:</span>
+                                    <span class="data-value" id="confirmFullName"></span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="data-label">Дата рождения:</span>
+                                    <span class="data-value" id="confirmBirthDate"></span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="data-label">СНИЛС:</span>
+                                    <span class="data-value" id="confirmSnils"></span>
+                                </div>
+                                <div class="data-row">
+                                    <span class="data-label">Паспорт:</span>
+                                    <span class="data-value" id="confirmPassport"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mobile-gosuslugi-tips">
+                                <div class="tip">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>Можно использовать мобильное приложение Госуслуги</span>
+                                </div>
+                                <div class="tip">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Данные передаются по защищенному соединению</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group checkbox">
+                            <input type="checkbox" id="gosuslugiConsent" required>
+                            <label for="gosuslugiConsent">Согласен на передачу данных для подтверждения личности через Госуслуги</label>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="button" class="btn-secondary" id="backToPassportData">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Назад</span>
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Подтвердить через Госуслуги</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Успешная авторизация -->
+                    <div id="userSuccessStep" class="form-step success-step">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2>Авторизация успешно завершена!</h2>
+                        <p>Ваша личность успешно подтверждена через портал Госуслуги.</p>
+                        
+                        <div class="success-data">
+                            <h3><i class="fas fa-user-circle"></i> Добро пожаловать!</h3>
+                            <div class="user-info-summary">
+                                <div class="info-row">
+                                    <span class="info-label">ФИО:</span>
+                                    <span class="info-value" id="welcomeName"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Дата рождения:</span>
+                                    <span class="info-value" id="welcomeBirthDate"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">СНИЛС:</span>
+                                    <span class="info-value" id="welcomeSnils"></span>
+                                </div>
+                            </div>
+                            <p class="success-message">Теперь вы можете пользоваться всеми возможностями государственной системы.</p>
+                        </div>
+                        
+                        <div class="success-actions">
+                            <button type="button" class="btn-success-action" id="continueToSystem">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Перейти в систему</span>
+                            </button>
+                        </div>
+                        
+                        <button type="button" class="btn-logout" id="userLogoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Выйти</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Авторизация сотрудника -->
+            <div class="admin-auth-section" id="adminAuthSection" style="display: none;">
+                <div class="logo-section">
+                    <div class="logo">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Авторизация сотрудника</span>
+                    </div>
+                    <button class="btn-back-to-select" id="adminBackToSelect">
+                        <i class="fas fa-arrow-left"></i> Назад к выбору
+                    </button>
+                </div>
+
+                <div class="auth-forms">
+                    <!-- Форма входа сотрудника -->
+                    <form id="adminLoginForm" class="admin-form">
+                        <h2><i class="fas fa-lock"></i> Вход для сотрудников</h2>
+                        <p class="step-description">Для доступа к системе введите ваши учетные данные</p>
+                        
+                        <div class="admin-login-info">
+                            <div class="admin-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <p>Доступ разрешен только авторизованным сотрудникам государственных учреждений.</p>
+                            
+                            <div class="demo-credentials">
+                                <h4><i class="fas fa-key"></i> Тестовые учетные данные:</h4>
+                                <div class="credential-item">
+                                    <span class="cred-label">Логин:</span>
+                                    <span class="cred-value">admin</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="cred-label">Пароль:</span>
+                                    <span class="cred-value">admin123</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="adminLogin"><i class="fas fa-user"></i> Логин *</label>
+                            <input type="text" id="adminLogin" placeholder="Введите логин" required>
+                            <div class="error-message" id="adminLoginError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="adminPassword"><i class="fas fa-key"></i> Пароль *</label>
+                            <input type="password" id="adminPassword" placeholder="Введите пароль" required>
+                            <div class="error-message" id="adminPasswordError"></div>
+                        </div>
+                        
+                        <div class="form-group checkbox">
+                            <input type="checkbox" id="rememberMe">
+                            <label for="rememberMe">Запомнить меня</label>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary btn-admin">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Войти</span>
+                        </button>
+                        
+                        <div class="admin-success-message" id="adminSuccessMessage" style="display: none; margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; text-align: center;">
+                            <h3><i class="fas fa-check-circle" style="color: #34a853;"></i> Вход выполнен успешно!</h3>
+                            <p>Добро пожаловать в систему, <span id="adminWelcomeName"></span>!</p>
+                            <p>Перенаправление на рабочий стол...</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="footer-section">
+                    <p><i class="fas fa-shield-alt"></i> Все данные защищены и передаются по защищенному соединению</p>
+                </div>
+                <div class="footer-section">
+                    <p><i class="fas fa-phone-alt"></i> Техническая поддержка: <a href="tel:+78001234567">8-800-123-45-67</a></p>
+                    <p><i class="fas fa-clock"></i> Круглосуточная поддержка</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mobile-bottom-nav">
+        <a href="#" class="nav-item active" data-section="user-auth">
+            <i class="fas fa-user"></i>
+            <span>Гражданин</span>
+        </a>
+        <a href="#" class="nav-item" data-section="admin-auth">
+            <i class="fas fa-user-tie"></i>
+            <span>Сотрудник</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>Помощь</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-info-circle"></i>
+            <span>О системе</span>
+        </a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
