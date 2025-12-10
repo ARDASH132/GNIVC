@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Административная авторизация
     const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminLoginInput = document.getElementById('adminLogin');
+    const adminPasswordInput = document.getElementById('adminPassword');
     const adminBackToSelect = document.getElementById('adminBackToSelect');
     const adminSuccessMessage = document.getElementById('adminSuccessMessage');
     
@@ -63,6 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentAuthType = 'user';
     let userData = {};
     let currentUserStep = 0;
+    let requiresAdminVerification = false;
+    let passportMatchStatus = null;
+    
+    // API базовый URL
+    const API_BASE_URL = window.location.origin.includes('localhost') 
+        ? 'http://localhost:3000/api' 
+        : '/api';
     
     // ====================
     // ОБЩИЕ ФУНКЦИИ
@@ -203,6 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUserStep = 0;
         updateUserProgress();
         userData = {};
+        requiresAdminVerification = false;
+        passportMatchStatus = null;
     }
     
     // Обновление прогресса пользователя
@@ -237,10 +248,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (step === 0) {
             personalDataForm.classList.add('active');
         } else if (step === 1) {
+            // ВСЕГДА очищаем форму паспортных данных
+            passportDataForm.reset();
+            document.getElementById('passportConsent').checked = false;
             passportDataForm.classList.add('active');
         } else if (step === 2) {
             gosuslugiForm.classList.add('active');
             updateConfirmationData();
+            updateVerificationWarning();
         } else if (step === 3) {
             userSuccessStep.classList.add('active');
             updateWelcomeData();
@@ -275,6 +290,74 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (userData.passportSeries && userData.passportNumber) {
             confirmPassport.textContent = `${userData.passportSeries} ${userData.passportNumber}`;
+            
+            // Добавляем статус проверки
+            let statusText = '';
+            let statusColor = 'gray';
+            
+            if (passportMatchStatus === true) {
+                statusText = ' ✓ Совпадает с предыдущими данными';
+                statusColor = 'green';
+            } else if (passportMatchStatus === false) {
+                statusText = ' ⚠ Не совпадает с предыдущими данными';
+                statusColor = 'orange';
+            }
+            
+            // Обновляем или создаем элемент статуса
+            let statusElement = document.getElementById('passportStatus');
+            if (!statusElement) {
+                statusElement = document.createElement('span');
+                statusElement.id = 'passportStatus';
+                statusElement.style.marginLeft = '10px';
+                statusElement.style.fontSize = '0.9em';
+                confirmPassport.parentNode.appendChild(statusElement);
+            }
+            
+            statusElement.textContent = statusText;
+            statusElement.style.color = statusColor;
+        }
+    }
+    
+    // Обновление предупреждения на странице подтверждения
+    function updateVerificationWarning() {
+        const gosuslugiForm = document.getElementById('gosuslugiForm');
+        
+        // Удаляем старое предупреждение
+        const oldWarning = document.getElementById('passportMismatchWarning');
+        if (oldWarning) oldWarning.remove();
+        
+        // Если паспорт не совпал, показываем предупреждение
+        if (passportMatchStatus === false) {
+            const warningDiv = document.createElement('div');
+            warningDiv.id = 'passportMismatchWarning';
+            warningDiv.innerHTML = `
+                <div style="
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    color: #856404;
+                ">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 20px;"></i>
+                        <h4 style="margin: 0; font-weight: 600;">Внимание!</h4>
+                    </div>
+                    <p style="margin: 0;">
+                        Введенные паспортные данные <strong>не совпадают</strong> с предыдущими.
+                        После нажатия кнопки ниже потребуется 
+                        <strong>проверка администратора</strong>.
+                    </p>
+                    <p style="margin: 10px 0 0 0; font-size: 0.9em;">
+                        <i class="fas fa-info-circle"></i>
+                        Проверка обычно занимает 1-2 рабочих дня.
+                    </p>
+                </div>
+            `;
+            
+            // Вставляем предупреждение
+            const firstChild = gosuslugiForm.firstChild;
+            gosuslugiForm.insertBefore(warningDiv, firstChild);
         }
     }
     
@@ -453,9 +536,9 @@ document.addEventListener('DOMContentLoaded', function() {
             clearError('birthDate');
         }
         
-        // СНИЛС
+        // СНИЛС (используем как ИНН)
         if (!snilsInput.value.trim()) {
-            showError('snils', 'Введите номер СНИЛС');
+            showError('snils', 'Введите СНИЛС (будет использован как ИНН)');
             isValid = false;
         } else if (!validateSnils(snilsInput.value.trim())) {
             showError('snils', 'Неверный формат СНИЛС');
@@ -535,12 +618,108 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
     
+    // ====================
+    // API ФУНКЦИИ
+    // ====================
+    
+    // Проверка/создание пользователя
+    async function checkUserInDatabase(userData) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/check-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Ошибка проверки пользователя:', error);
+            return { 
+                success: false, 
+                message: 'Ошибка соединения с сервером' 
+            };
+        }
+    }
+    
+    // Добавление паспортных данных
+    async function addPassportData(passportData) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/add-passport`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(passportData)
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Ошибка добавления паспорта:', error);
+            return { 
+                success: false, 
+                message: 'Ошибка соединения с сервером' 
+            };
+        }
+    }
+    
+    // Подтверждение пользователя
+    async function verifyUser(inn) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/verify-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ inn })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Ошибка подтверждения:', error);
+            return { 
+                success: false, 
+                message: 'Ошибка соединения с сервером' 
+            };
+        }
+    }
+    
+    // Авторизация администратора
+    async function adminLogin(credentials) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/admin-login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials)
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Ошибка авторизации администратора:', error);
+            return { 
+                success: false, 
+                message: 'Ошибка соединения с сервером' 
+            };
+        }
+    }
+    
+    // ====================
+    // ОБРАБОТЧИКИ ФОРМ
+    // ====================
+    
     // Отправка формы личных данных
-    personalDataForm.addEventListener('submit', function(e) {
+    personalDataForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (validatePersonalDataForm()) {
+            // Преобразуем СНИЛС в ИНН (убираем дефисы и пробелы)
+            const inn = snilsInput.value.trim().replace(/\D/g, '');
+            
             userData = {
+                inn: inn,
                 lastName: lastNameInput.value.trim(),
                 firstName: firstNameInput.value.trim(),
                 middleName: middleNameInput.value.trim(),
@@ -548,17 +727,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 snils: snilsInput.value.trim()
             };
             
-            goToUserStep(1);
+            // Сохраняем ИНН в localStorage для страницы ожидания
+            localStorage.setItem('currentUserINN', userData.inn);
+            
+            // Показываем загрузку
+            const submitBtn = personalDataForm.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Проверка...</span>';
+            submitBtn.disabled = true;
+            
+            // Проверяем/создаем пользователя
+            const result = await checkUserInDatabase(userData);
+            
+            if (result.success) {
+                // ВСЕГДА переходим к шагу 2
+                goToUserStep(1);
+                showNotification(result.message, 'info');
+            } else {
+                showNotification(result.message || 'Ошибка проверки', 'error');
+            }
+            
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
     
     // Отправка формы паспортных данных
-    passportDataForm.addEventListener('submit', function(e) {
+    passportDataForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (validatePassportDataForm()) {
-            userData = {
-                ...userData,
+            const passportData = {
+                inn: userData.inn,
                 passportSeries: passportSeriesInput.value.trim(),
                 passportNumber: passportNumberInput.value.trim(),
                 passportIssuedBy: passportIssuedByInput.value.trim(),
@@ -566,12 +766,50 @@ document.addEventListener('DOMContentLoaded', function() {
                 passportDepartmentCode: passportDepartmentCodeInput.value.trim()
             };
             
-            goToUserStep(2);
+            // Показываем загрузку
+            const submitBtn = passportDataForm.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Проверка...</span>';
+            submitBtn.disabled = true;
+            
+            // Сохраняем паспортные данные
+            const result = await addPassportData(passportData);
+            
+            if (result.success) {
+                // Сохраняем данные для подтверждения
+                userData.passportSeries = passportData.passportSeries;
+                userData.passportNumber = passportData.passportNumber;
+                userData.passportIssuedBy = passportData.passportIssuedBy;
+                userData.passportIssueDate = passportData.passportIssueDate;
+                userData.passportDepartmentCode = passportData.passportDepartmentCode;
+                
+                // Сохраняем статус совпадения
+                passportMatchStatus = result.passportMatch;
+                requiresAdminVerification = result.requiresAdminVerification || false;
+                
+                // Переходим к подтверждению
+                goToUserStep(2);
+                
+                // Показываем сообщение
+                if (passportMatchStatus === true) {
+                    showNotification('✓ Паспортные данные совпадают с предыдущими', 'success');
+                } else if (passportMatchStatus === false) {
+                    showNotification('⚠ Паспортные данные изменились. Требуется проверка', 'warning');
+                } else {
+                    showNotification('Паспортные данные сохранены', 'success');
+                }
+                
+            } else {
+                showNotification(result.message || 'Ошибка сохранения', 'error');
+            }
+            
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
     
-    // Отправка формы Госуслуг
-    gosuslugiForm.addEventListener('submit', function(e) {
+    // Отправка формы подтверждения (бывшая Госуслуги)
+    gosuslugiForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (!document.getElementById('gosuslugiConsent').checked) {
@@ -579,21 +817,40 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Имитация загрузки
+        // Показываем загрузку
         const submitBtn = gosuslugiForm.querySelector('.btn-primary');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Подтверждение...</span>';
         submitBtn.disabled = true;
         
-        // Имитация запроса к Госуслугам
-        setTimeout(() => {
-            goToUserStep(3);
-            
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-            
-            showNotification('Авторизация через Госуслуги успешна!', 'success');
-        }, 2000);
+        // Отправляем запрос на подтверждение
+        const result = await verifyUser(userData.inn);
+        
+        if (result.success) {
+            if (result.passportMatch === false) {
+                // Если паспорт не совпал
+                showNotification('Паспортные данные не совпадают. Требуется проверка администратора.', 'warning');
+                
+                // Перенаправляем на страницу ожидания
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/pending.html';
+                }, 2000);
+                
+            } else {
+                // Паспорт совпадает или это первый раз
+                showNotification(result.message || 'Подтверждение успешно!', 'success');
+                
+                // Перенаправляем на главную страницу
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/HtmlPagek.html';
+                }, 1500);
+            }
+        } else {
+            showNotification(result.message || 'Ошибка подтверждения', 'error');
+        }
+        
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
     
     // Кнопки навигации пользователя
@@ -607,8 +864,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     continueToSystem.addEventListener('click', function() {
         showNotification('Переход в систему...', 'info');
-        // В реальном приложении здесь был бы редирект
-        // window.location.href = '/system';
+        window.location.href = '/HtmlPagek.html';
     });
     
     // Выход пользователя
@@ -655,66 +911,46 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
     
-    // Проверка учетных данных администратора
-    function checkAdminCredentials(login, password) {
-        // Тестовые учетные данные
-        const testCredentials = [
-            { login: 'admin', password: 'admin123', name: 'Администратор' },
-            { login: 'operator', password: 'operator123', name: 'Оператор' },
-            { login: 'support', password: 'support123', name: 'Техподдержка' }
-        ];
-        
-        const user = testCredentials.find(
-            cred => cred.login === login && cred.password === password
-        );
-        
-        return user ? { success: true, name: user.name } : { success: false };
-    }
-    
     // Отправка формы администратора
-    adminLoginForm.addEventListener('submit', function(e) {
+    adminLoginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (!validateAdminForm()) {
             return;
         }
         
-        const login = adminLoginInput.value.trim();
-        const password = adminPasswordInput.value.trim();
+        const credentials = {
+            username: adminLoginInput.value.trim(),
+            password: adminPasswordInput.value.trim()
+        };
         
-        // Имитация загрузки
+        // Показываем загрузку
         const submitBtn = adminLoginForm.querySelector('.btn-admin');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Проверка...</span>';
         submitBtn.disabled = true;
         
-        // Проверка учетных данных
-        setTimeout(() => {
-            const result = checkAdminCredentials(login, password);
+        // Авторизуем администратора
+        const result = await adminLogin(credentials);
+        
+        if (result.success) {
+            adminWelcomeName.textContent = result.admin.fullName;
+            adminSuccessMessage.style.display = 'block';
             
-            if (result.success) {
-                // Успешный вход
-                adminWelcomeName.textContent = result.name;
-                adminSuccessMessage.style.display = 'block';
-                
-                showNotification(`Добро пожаловать, ${result.name}!`, 'success');
-                
-                // Имитация перенаправления
-                setTimeout(() => {
-                    showNotification('Перенаправление на рабочий стол...', 'info');
-                    // В реальном приложении здесь был бы редирект
-                    // window.location.href = '/admin/dashboard';
-                }, 2000);
-            } else {
-                // Ошибка входа
-                showNotification('Неверный логин или пароль', 'error');
-                showError('adminLogin', ' ');
-                showError('adminPassword', 'Неверные учетные данные');
-            }
+            showNotification(`Добро пожаловать, ${result.admin.fullName}!`, 'success');
             
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 1500);
+            // Перенаправление на админ-панель
+            setTimeout(() => {
+                window.location.href = result.redirect || '/admin_input.html';
+            }, 1500);
+        } else {
+            showNotification(result.message || 'Неверные учетные данные', 'error');
+            showError('adminLogin', ' ');
+            showError('adminPassword', 'Неверные учетные данные');
+        }
+        
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     });
     
     // ====================
@@ -894,191 +1130,25 @@ document.addEventListener('DOMContentLoaded', function() {
             minIssueDate.setFullYear(today.getFullYear() - 100);
             passportIssueDateInput.min = minIssueDate.toISOString().split('T')[0];
         }
+        
+        // Проверить подключение к API
+        checkAPIConnection();
+    }
+    
+    // Проверка подключения к API
+    async function checkAPIConnection() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/health`);
+            if (response.ok) {
+                console.log('✅ API подключен');
+            } else {
+                console.warn('⚠️  API не отвечает, используется локальная логика');
+            }
+        } catch (error) {
+            console.warn('⚠️  Нет подключения к API, используется локальная логика');
+        }
     }
     
     init();
     window.addEventListener('resize', adjustFontSize);
-});
-// API функции
-const API_BASE_URL = window.location.origin.includes('localhost') 
-    ? 'http://localhost:3000/api' 
-    : '/api';
-
-// Проверка пользователя
-async function checkUserInDatabase(userData) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/check-user`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData)
-        });
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка проверки пользователя:', error);
-        return { success: false, message: 'Ошибка соединения с сервером' };
-    }
-}
-
-// Добавление паспортных данных
-async function addPassportData(passportData) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/add-passport`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(passportData)
-        });
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка добавления паспорта:', error);
-        return { success: false, message: 'Ошибка соединения с сервером' };
-    }
-}
-
-// Авторизация администратора
-async function adminLogin(credentials) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/auth/admin-login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(credentials)
-        });
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Ошибка авторизации администратора:', error);
-        return { success: false, message: 'Ошибка соединения с сервером' };
-    }
-}
-
-// Обновите отправку формы личных данных
-personalDataForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (validatePersonalDataForm()) {
-        userData = {
-            inn: snilsInput.value.trim(), // Используем СНИЛС как ИНН для примера
-            lastName: lastNameInput.value.trim(),
-            firstName: firstNameInput.value.trim(),
-            middleName: middleNameInput.value.trim(),
-            birthDate: birthDateInput.value
-        };
-        
-        // Показываем загрузку
-        const submitBtn = personalDataForm.querySelector('.btn-primary');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Проверка...</span>';
-        submitBtn.disabled = true;
-        
-        // Проверяем пользователя в базе
-        const result = await checkUserInDatabase(userData);
-        
-        if (result.success) {
-            if (result.hasPassport) {
-                // Пользователь есть, паспорт есть - переход на главную
-                showNotification('Успешный вход! Перенаправление...', 'success');
-                setTimeout(() => {
-                    window.location.href = result.redirect || '/account';
-                }, 1500);
-            } else if (result.isNewUser) {
-                // Новый пользователь - переход к добавлению паспорта
-                goToUserStep(1);
-                showNotification('Продолжите регистрацию', 'info');
-            } else {
-                // Пользователь есть, но нет паспорта
-                goToUserStep(1);
-                showNotification('Требуется добавить паспортные данные', 'info');
-            }
-        } else {
-            showNotification(result.message || 'Ошибка проверки', 'error');
-        }
-        
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-// Обновите отправку формы паспортных данных
-passportDataForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (validatePassportDataForm()) {
-        const passportData = {
-            inn: userData.inn,
-            passportSeries: passportSeriesInput.value.trim(),
-            passportNumber: passportNumberInput.value.trim(),
-            passportIssuedBy: passportIssuedByInput.value.trim(),
-            passportIssueDate: passportIssueDateInput.value,
-            passportDepartmentCode: passportDepartmentCodeInput.value.trim()
-        };
-        
-        // Показываем загрузку
-        const submitBtn = passportDataForm.querySelector('.btn-primary');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Сохранение...</span>';
-        submitBtn.disabled = true;
-        
-        // Сохраняем паспортные данные
-        const result = await addPassportData(passportData);
-        
-        if (result.success) {
-            // Переходим к подтверждению через Госуслуги
-            goToUserStep(2);
-            showNotification('Паспортные данные сохранены', 'success');
-        } else {
-            showNotification(result.message || 'Ошибка сохранения', 'error');
-        }
-        
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-
-// Обновите отправку формы администратора
-adminLoginForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    if (!validateAdminForm()) {
-        return;
-    }
-    
-    const credentials = {
-        username: adminLoginInput.value.trim(),
-        password: adminPasswordInput.value.trim()
-    };
-    
-    // Показываем загрузку
-    const submitBtn = adminLoginForm.querySelector('.btn-admin');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Проверка...</span>';
-    submitBtn.disabled = true;
-    
-    // Авторизуем администратора
-    const result = await adminLogin(credentials);
-    
-    if (result.success) {
-        adminWelcomeName.textContent = result.admin.fullName;
-        adminSuccessMessage.style.display = 'block';
-        
-        showNotification(`Добро пожаловать, ${result.admin.fullName}!`, 'success');
-        
-        // Перенаправление
-        setTimeout(() => {
-            window.location.href = result.redirect || '/admin/dashboard';
-        }, 1500);
-    } else {
-        showNotification(result.message || 'Неверные учетные данные', 'error');
-        showError('adminLogin', ' ');
-        showError('adminPassword', 'Неверные учетные данные');
-    }
-    
-    submitBtn.innerHTML = originalText;
-    submitBtn.disabled = false;
 });

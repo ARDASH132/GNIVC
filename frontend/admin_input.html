@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#0066cc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Федеральная налоговая служба - Админ панель</title>
+    
+    <style>
+        /* Цветовая схема на основе старого сайта */
+        :root {
+            --primary-blue: #0066cc;
+            --dark-blue: #004a99;
+            --light-blue: #e6f2ff;
+            --header-blue: #0f65ba;
+            --sidebar-blue: #054793;
+            --accent-blue: #0088cc;
+            --text-dark: #333333;
+            --text-gray: #666666;
+            --text-light: #999999;
+            --bg-gray: #f8f9fa;
+            --border-gray: #dee2e6;
+            --white: #ffffff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 20px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            font-size: 14px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Верхняя навигация */
+        .top-nav {
+            background-color: var(--header-blue);
+            color: white;
+            padding: 0 20px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        /* Основной контейнер */
+        .container {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+
+        /* Боковая панель */
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-blue);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+
+        .sidebar-title {
+            padding: 0 20px 10px 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 2px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: background-color 0.2s;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .sidebar-menu a.active {
+            background-color: rgba(255,255,255,0.15);
+            border-left-color: var(--accent-blue);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* Основной контент */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Заголовок страницы */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .page-title {
+            font-size: 22px;
+            color: var(--header-blue);
+            font-weight: 600;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-blue);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        /* Карточки */
+        .card {
+            background-color: var(--white);
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid var(--border-gray);
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--light-blue);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--header-blue);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Таблицы */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background-color: var(--light-blue);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--header-blue);
+            border-bottom: 2px solid var(--border-gray);
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-gray);
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(0, 102, 204, 0.03);
+        }
+
+        /* Статусы */
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #b28a00;
+        }
+
+        /* Формы поиска */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-type {
+            min-width: 180px;
+        }
+
+        .search-type select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+            background-color: var(--white);
+            font-size: 14px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        /* Чат интерфейс */
+        .chat-container {
+            display: flex;
+            height: 600px;
+            gap: 20px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: var(--white);
+        }
+
+        .chat-sidebar {
+            width: 320px;
+            border-right: 1px solid var(--border-gray);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-search {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .chat-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-gray);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .chat-item:hover {
+            background-color: var(--light-blue);
+        }
+
+        .chat-item.active {
+            background-color: var(--light-blue);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .chat-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .chat-user {
+            font-weight: 600;
+            color: var(--header-blue);
+        }
+
+        .chat-time {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .chat-preview {
+            color: var(--text-gray);
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-unread {
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 10px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: var(--light-blue);
+        }
+
+        .chat-user-info {
+            flex: 1;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            color: var(--header-blue);
+        }
+
+        .chat-user-details {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #fafafa;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .message-received {
+            align-self: flex-start;
+            background-color: var(--white);
+            border: 1px solid var(--border-gray);
+            border-bottom-left-radius: 3px;
+        }
+
+        .message-sent {
+            align-self: flex-end;
+            background-color: var(--light-blue);
+            border: 1px solid rgba(0, 102, 204, 0.2);
+            border-bottom-right-radius: 3px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            gap: 10px;
+            background-color: var(--white);
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+            resize: none;
+            height: 60px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        /* Пагинация */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-gray);
+            background-color: var(--light-blue);
+        }
+
+        .pagination-info {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            padding: 5px 12px;
+            border: 1px solid var(--border-gray);
+            background-color: var(--white);
+            color: var(--text-dark);
+            cursor: pointer;
+            border-radius: 3px;
+            min-width: 36px;
+        }
+
+        .page-btn.active {
+            background-color: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .page-btn:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--primary-blue);
+            color: white;
+            border-radius: 3px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1000;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background-color: var(--success);
+        }
+
+        .notification.warning {
+            background-color: var(--warning);
+            color: var(--text-dark);
+        }
+
+        .notification.error {
+            background-color: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stat-card .stat-change {
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-change.positive {
+            color: #a3ffb3;
+        }
+
+        .stat-change.negative {
+            color: #ffb3b3;
+        }
+
+        /* Страницы */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--header-blue);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .taxpayer-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            background-color: var(--light-blue);
+            border-radius: 4px;
+            padding: 20px;
+            border: 1px solid var(--border-gray);
+        }
+
+        .detail-section-title {
+            color: var(--header-blue);
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            min-width: 160px;
+            padding-right: 10px;
+            font-size: 13px;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: var(--text-gray);
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .back-btn {
+            margin-right: 15px;
+        }
+
+        /* Адаптивность для детальной страницы */
+        @media (max-width: 768px) {
+            .taxpayer-detail-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .detail-section {
+                padding: 15px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                margin-bottom: 10px;
+            }
+            
+            .detail-label {
+                min-width: auto;
+                margin-bottom: 3px;
+                font-size: 12px;
+            }
+            
+            .detail-value {
+                font-size: 13px;
+            }
+            
+            .detail-section-title {
+                font-size: 15px;
+            }
+            
+            .page-header .back-btn {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .chat-sidebar {
+                width: 280px;
+            }
+        }
+
+        /* Для планшетов (вертикальная ориентация) */
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+                padding: 10px 0;
+                order: 2;
+            }
+            
+            .sidebar-section {
+                margin-bottom: 15px;
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                padding: 0 10px;
+            }
+            
+            .sidebar-menu li {
+                flex: 1 0 calc(33.333% - 10px);
+                margin-bottom: 5px;
+            }
+            
+            .sidebar-menu a {
+                padding: 10px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                justify-content: center;
+                text-align: center;
+                flex-direction: column;
+                border-radius: 4px;
+            }
+            
+            .sidebar-menu a.active {
+                border-left: none;
+                border-bottom-color: var(--accent-blue);
+            }
+            
+            .sidebar-menu i {
+                margin-right: 0;
+                margin-bottom: 5px;
+                font-size: 14px;
+            }
+            
+            .sidebar-menu span {
+                font-size: 12px;
+                line-height: 1.2;
+            }
+            
+            .sidebar-title {
+                text-align: center;
+                padding: 0 15px 8px 15px;
+            }
+            
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+                max-height: 800px;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-gray);
+                height: 300px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .main-content {
+                order: 1;
+                padding: 15px;
+            }
+        }
+
+        /* Для мобильных телефонов (горизонтальная ориентация) */
+        @media (max-width: 768px) {
+            body {
+                font-size: 13px;
+            }
+            
+            .top-nav {
+                padding: 0 10px;
+                height: auto;
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+            
+            .top-nav-left {
+                width: 100%;
+                justify-content: space-between;
+                margin: 5px 0;
+            }
+            
+            .top-nav-right {
+                width: 100%;
+                justify-content: space-between;
+                margin: 5px 0;
+                padding-top: 10px;
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .logo-text {
+                font-size: 16px;
+            }
+            
+            .nav-links {
+                justify-content: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .nav-links a {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            
+            .user-info {
+                flex-direction: row;
+                text-align: left;
+                gap: 10px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+            
+            .page-title {
+                font-size: 18px;
+            }
+            
+            .page-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .search-box {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .search-type, .search-input {
+                min-width: 100%;
+                width: 100%;
+            }
+            
+            .search-input input,
+            .search-type select {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            .data-table {
+                min-width: 100%;
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .data-table th, .data-table td {
+                padding: 8px 10px;
+                white-space: nowrap;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                gap: 5px;
+            }
+            
+            .btn i {
+                font-size: 12px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-card .stat-value {
+                font-size: 22px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                padding: 12px 15px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .pagination {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 15px;
+            }
+            
+            .pagination-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .chat-window {
+                height: 400px;
+            }
+            
+            .chat-input textarea {
+                height: 50px;
+                font-size: 13px;
+            }
+        }
+
+        /* Для маленьких мобильных телефонов */
+        @media (max-width: 576px) {
+            .sidebar-menu li {
+                flex: 1 0 calc(50% - 10px);
+            }
+            
+            .chat-item-header {
+                flex-direction: column;
+                gap: 5px;
+                align-items: flex-start;
+            }
+            
+            .chat-user {
+                font-size: 13px;
+            }
+            
+            .chat-time {
+                font-size: 11px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 8px 12px;
+            }
+            
+            .message-time {
+                font-size: 10px;
+            }
+            
+            .status-badge {
+                font-size: 11px;
+                padding: 2px 8px;
+            }
+            
+            .chat-unread {
+                font-size: 10px;
+                padding: 1px 5px;
+            }
+            
+            .top-nav-left {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-links {
+                gap: 5px;
+            }
+            
+            .nav-links a {
+                font-size: 11px;
+                padding: 4px 6px;
+            }
+            
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .logout-btn {
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-width: 375px) {
+            .sidebar-menu li {
+                flex: 1 0 100%;
+            }
+            
+            .page-actions .btn {
+                flex: 1 0 calc(50% - 5px);
+                justify-content: center;
+            }
+            
+            .pagination-controls .page-btn {
+                padding: 4px 8px;
+                min-width: 30px;
+                font-size: 11px;
+            }
+            
+            .modal-content {
+                width: 100%;
+                margin: 5px;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Верхняя навигация -->
+    <div class="top-nav">
+        <div class="top-nav-left">
+            <div class="logo">
+                <div class="logo-text">Федеральная налоговая служба</div>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-top-link"><i class="fas fa-home"></i> Главная</a>
+                <a href="#" class="nav-top-link"><i class="fas fa-newspaper"></i> Новости</a>
+                <a href="#" class="nav-top-link"><i class="fas fa-question-circle"></i> Помощь</a>
+                <a href="#" class="nav-top-link"><i class="fas fa-phone-alt"></i> Контакты</a>
+            </div>
+        </div>
+        
+        <div class="top-nav-right">
+            <div class="user-info">
+                <div class="user-avatar">АД</div>
+                <div>
+                    <div style="font-weight: 600;">Администратор</div>
+                    <div id="current-date" style="font-size: 12px; opacity: 0.9;"></div>
+                </div>
+            </div>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Выход
+            </button>
+        </div>
+    </div>
+
+    <!-- Основной контейнер -->
+    <div class="container">
+        <!-- Боковая панель -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Основное</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Дашборд</span></a></li>
+                    <li><a href="#" class="nav-link" data-page="taxpayers"><i class="fas fa-users"></i> <span>Налогоплательщики</span></a></li>
+                    <li><a href="#" class="nav-link" data-page="reports"><i class="fas fa-chart-bar"></i> <span>Отчеты</span></a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Администрирование</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="nav-link" data-page="chat"><i class="fas fa-comments"></i> <span>Чаты с пользователями</span> <span class="chat-badge"></span></a></li>
+                    <li><a href="#" class="nav-link" data-page="settings"><i class="fas fa-cog"></i> <span>Настройки системы</span></a></li>
+                    <li><a href="#" class="nav-link" data-page="logs"><i class="fas fa-clipboard-list"></i> <span>Журнал действий</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Страница Дашборда -->
+            <div id="dashboard-page" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Дашборд администратора</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-outline export-btn">
+                            <i class="fas fa-download"></i> Экспорт
+                        </button>
+                        <button class="btn btn-primary refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Всего налогоплательщиков</div>
+                        <div class="stat-value">1,248</div>
+                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> +12 за неделю</div>
+                    </div>
+                    
+                    <div class="stat-card" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                        <div class="stat-label">Активные процессы</div>
+                        <div class="stat-value">84</div>
+                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> +5 сегодня</div>
+                    </div>
+                    
+                    <div class="stat-card" style="background: linear-gradient(135deg, #6c757d, #868e96);">
+                        <div class="stat-label">Новых сообщений</div>
+                        <div class="stat-value">23</div>
+                        <div class="stat-change negative"><i class="fas fa-arrow-down"></i> -8 с прошлой недели</div>
+                    </div>
+                    
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+                        <div class="stat-label">Ожидает обработки</div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-change positive"><i class="fas fa-arrow-up"></i> +42 сегодня</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Последние действия</div>
+                        <button class="btn btn-outline btn-sm show-all-btn">Показать все</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Время</th>
+                                        <th>Действие</th>
+                                        <th>Пользователь</th>
+                                        <th>Объект</th>
+                                        <th>Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="actions-table-body">
+                                    <!-- Данные загружаются через JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Страница Налогоплательщиков -->
+            <div id="taxpayers-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Налогоплательщики</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-success add-taxpayer-btn">
+                            <i class="fas fa-plus"></i> Добавить
+                        </button>
+                        <button class="btn btn-primary import-btn">
+                            <i class="fas fa-upload"></i> Импорт
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Поиск налогоплательщиков</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="search-box">
+                            <div class="search-type">
+                                <select id="search-type">
+                                    <option value="name">По ФИО</option>
+                                    <option value="inn">По ИНН</option>
+                                    <option value="snils">По СНИЛС</option>
+                                    <option value="passport">По паспорту</option>
+                                    <option value="all">По всем полям</option>
+                                </select>
+                            </div>
+                            
+                            <div class="search-input">
+                                <input type="text" id="search-input" placeholder="Введите данные для поиска...">
+                            </div>
+                            
+                            <button class="btn btn-primary search-btn">
+                                <i class="fas fa-search"></i> Найти
+                            </button>
+                            <button class="btn btn-outline clear-search-btn">
+                                <i class="fas fa-times"></i> Очистить
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="data-table" id="taxpayers-table">
+                                <thead>
+                                    <tr>
+                                        <th>ФИО</th>
+                                        <th>ИНН</th>
+                                        <th>СНИЛС</th>
+                                        <th>Паспорт</th>
+                                        <th>Регион</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taxpayers-table-body">
+                                    <!-- Данные загружаются через JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="pagination">
+                            <div class="pagination-info">
+                                Показано <span id="shown-count">10</span> из <span id="total-count">1,248</span> записей
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="page-btn prev-page-btn"><i class="fas fa-chevron-left"></i></button>
+                                <button class="page-btn active page-1">1</button>
+                                <button class="page-btn page-2">2</button>
+                                <button class="page-btn page-3">3</button>
+                                <button class="page-btn page-4">4</button>
+                                <button class="page-btn page-5">5</button>
+                                <button class="page-btn next-page-btn"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Страница Чатов -->
+            <div id="chat-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Чаты с пользователями</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-outline archive-chat-btn">
+                            <i class="fas fa-archive"></i> Архивировать
+                        </button>
+                        <button class="btn btn-primary print-chat-btn">
+                            <i class="fas fa-print"></i> Печать
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-container">
+                    <div class="chat-sidebar">
+                        <div class="chat-search">
+                            <input type="text" placeholder="Поиск чатов..." id="chat-search-input">
+                        </div>
+                        <div class="chat-list" id="chat-list">
+                            <!-- Список чатов загружается через JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="chat-window">
+                        <div class="chat-header">
+                            <div class="user-avatar" style="width: 45px; height: 45px;">ИИ</div>
+                            <div class="chat-user-info">
+                                <div class="chat-user-name" id="chat-user-name">Иванов Иван Иванович</div>
+                                <div class="chat-user-details" id="chat-user-details">ИНН: 123456789012, Регион: Москва</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline btn-sm chat-info-btn"><i class="fas fa-info-circle"></i></button>
+                                <button class="btn btn-outline btn-sm chat-menu-btn"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Сообщения загружаются через JS -->
+                        </div>
+                        
+                        <div class="chat-input">
+                            <textarea id="message-input" placeholder="Введите сообщение..."></textarea>
+                            <button class="btn btn-primary send-message-btn" style="height: 60px;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Страница Детали налогоплательщика -->
+            <div id="taxpayer-detail-page" class="page">
+                <div class="page-header">
+                    <button class="btn btn-outline back-btn" id="back-to-taxpayers-btn">
+                        <i class="fas fa-arrow-left"></i> Назад к списку
+                    </button>
+                    <h1 class="page-title">Карточка налогоплательщика</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-outline print-taxpayer-btn">
+                            <i class="fas fa-print"></i> Печать
+                        </button>
+                        <button class="btn btn-primary edit-detail-btn">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Основная информация</div>
+                        <span class="status-badge status-active" id="detail-status">Активен</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="taxpayer-detail-grid">
+                            <div class="detail-section">
+                                <h3 class="detail-section-title">Личные данные</h3>
+                                <div class="detail-row">
+                                    <div class="detail-label">ФИО:</div>
+                                    <div class="detail-value" id="detail-fullname">Иванов Иван Иванович</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Дата рождения:</div>
+                                    <div class="detail-value" id="detail-birthdate">15.03.1985</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Пол:</div>
+                                    <div class="detail-value" id="detail-gender">Мужской</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Место рождения:</div>
+                                    <div class="detail-value" id="detail-birthplace">г. Москва</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3 class="detail-section-title">Документы</h3>
+                                <div class="detail-row">
+                                    <div class="detail-label">ИНН:</div>
+                                    <div class="detail-value" id="detail-inn">123456789012</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">СНИЛС:</div>
+                                    <div class="detail-value" id="detail-snils">123-456-789 00</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Паспорт:</div>
+                                    <div class="detail-value" id="detail-passport">4508 123456</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Кем выдан:</div>
+                                    <div class="detail-value" id="detail-passport-issued">ОУФМС России по г. Москве</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Дата выдачи:</div>
+                                    <div class="detail-value" id="detail-passport-date">20.05.2010</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3 class="detail-section-title">Контактная информация</h3>
+                                <div class="detail-row">
+                                    <div class="detail-label">Регион:</div>
+                                    <div class="detail-value" id="detail-region">Москва</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Адрес регистрации:</div>
+                                    <div class="detail-value" id="detail-address">ул. Тверская, д. 15, кв. 42</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Телефон:</div>
+                                    <div class="detail-value" id="detail-phone">+7 (999) 123-45-67</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Email:</div>
+                                    <div class="detail-value" id="detail-email">ivanov@example.com</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3 class="detail-section-title">Финансовая информация</h3>
+                                <div class="detail-row">
+                                    <div class="detail-label">Статус налогоплательщика:</div>
+                                    <div class="detail-value" id="detail-tax-status">Физическое лицо</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Налоговый резидент:</div>
+                                    <div class="detail-value" id="detail-resident">Да</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">ИНН присвоен:</div>
+                                    <div class="detail-value" id="detail-inn-date">15.06.2005</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Последняя проверка:</div>
+                                    <div class="detail-value" id="detail-last-check">12.11.2024</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">История взаимодействий</div>
+                        <button class="btn btn-outline btn-sm" id="show-all-history">Показать все</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table" id="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Тип взаимодействия</th>
+                                        <th>Описание</th>
+                                        <th>Статус</th>
+                                        <th>Ответственный</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body">
+                                    <!-- Данные загружаются через JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="page-actions" style="margin-top: 20px;">
+                    <button class="btn btn-outline" id="send-notification-btn">
+                        <i class="fas fa-bell"></i> Отправить уведомление
+                    </button>
+                    <button class="btn btn-outline" id="start-chat-detail-btn">
+                        <i class="fas fa-comment"></i> Начать чат
+                    </button>
+                    <button class="btn btn-outline" id="download-docs-btn">
+                        <i class="fas fa-download"></i> Скачать документы
+                    </button>
+                    <button class="btn btn-danger" id="block-taxpayer-btn">
+                        <i class="fas fa-ban"></i> Заблокировать
+                    </button>
+                </div>
+            </div>
+
+            <!-- Другие страницы -->
+            <div id="documents-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Документы</div>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-file-alt" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 20px;"></i>
+                        <h3 style="color: var(--header-blue); margin-bottom: 10px;">Система документов</h3>
+                        <p style="color: var(--text-gray); max-width: 500px; margin: 0 auto;">Управление документами налогоплательщиков.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reports-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Отчеты</div>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-chart-bar" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 20px;"></i>
+                        <h3 style="color: var(--header-blue); margin-bottom: 10px;">Система отчетов</h3>
+                        <p style="color: var(--text-gray); max-width: 500px; margin: 0 auto;">Генерация и анализ отчетов.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Настройки системы</div>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-cog" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 20px;"></i>
+                        <h3 style="color: var(--header-blue); margin-bottom: 10px;">Настройки системы</h3>
+                        <p style="color: var(--text-gray); max-width: 500px; margin: 0 auto;">Конфигурация параметров системы.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="logs-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Журнал действий</div>
+                    </div>
+                    <div class="card-body" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-clipboard-list" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 20px;"></i>
+                        <h3 style="color: var(--header-blue); margin-bottom: 10px;">Журнал действий</h3>
+                        <p style="color: var(--text-gray); max-width: 500px; margin: 0 auto;">Просмотр истории действий в системе.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">Заголовок</div>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Содержимое модального окна
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="modal-cancel">Отмена</button>
+                <button class="btn btn-primary" id="modal-confirm">Подтвердить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div class="notification" id="notification">
+        <div id="notification-text">Уведомление</div>
+    </div>
+
+    <script>
+        // Данные для примера
+        const taxpayersData = [
+            {
+                id: 1, 
+                fullName: "Иванов Иван Иванович", 
+                inn: "123456789012", 
+                snils: "123-456-789 00", 
+                passport: "4508 123456", 
+                region: "Москва", 
+                status: "active",
+                birthdate: "15.03.1985",
+                gender: "Мужской",
+                birthplace: "г. Москва",
+                passportIssued: "ОУФМС России по г. Москве",
+                passportDate: "20.05.2010",
+                address: "ул. Тверская, д. 15, кв. 42",
+                phone: "+7 (999) 123-45-67",
+                email: "ivanov@example.com",
+                taxStatus: "Физическое лицо",
+                resident: "Да",
+                innDate: "15.06.2005",
+                lastCheck: "12.11.2024"
+            },
+            {
+                id: 2, 
+                fullName: "Петров Петр Петрович", 
+                inn: "987654321098", 
+                snils: "987-654-321 01", 
+                passport: "4510 654321", 
+                region: "Санкт-Петербург", 
+                status: "active",
+                birthdate: "22.08.1978",
+                gender: "Мужской",
+                birthplace: "г. Санкт-Петербург",
+                passportIssued: "ОУФМС по Санкт-Петербургу",
+                passportDate: "10.09.2012",
+                address: "пр. Невский, д. 45, кв. 18",
+                phone: "+7 (911) 234-56-78",
+                email: "petrov@example.com",
+                taxStatus: "Физическое лицо",
+                resident: "Да",
+                innDate: "20.03.2008",
+                lastCheck: "05.10.2024"
+            },
+            {
+                id: 3, 
+                fullName: "Сидорова Анна Владимировна", 
+                inn: "456123789045", 
+                snils: "456-123-789 02", 
+                passport: "4512 789123", 
+                region: "Новосибирск", 
+                status: "inactive",
+                birthdate: "30.11.1990",
+                gender: "Женский",
+                birthplace: "г. Новосибирск",
+                passportIssued: "ОУФМС по Новосибирской области",
+                passportDate: "15.07.2015",
+                address: "ул. Ленина, д. 23, кв. 7",
+                phone: "+7 (913) 456-78-90",
+                email: "sidorova@example.com",
+                taxStatus: "Физическое лицо",
+                resident: "Да",
+                innDate: "10.09.2016",
+                lastCheck: "18.09.2024"
+            },
+            {
+                id: 4, 
+                fullName: "Кузнецов Алексей Сергеевич", 
+                inn: "789456123078", 
+                snils: "789-456-123 03", 
+                passport: "4505 456789", 
+                region: "Екатеринбург", 
+                status: "active",
+                birthdate: "05.04.1982",
+                gender: "Мужской",
+                birthplace: "г. Екатеринбург",
+                passportIssued: "ОУФМС по Свердловской области",
+                passportDate: "22.11.2009",
+                address: "ул. 8 Марта, д. 56, кв. 33",
+                phone: "+7 (912) 567-89-01",
+                email: "kuznetsov@example.com",
+                taxStatus: "Физическое лицо",
+                resident: "Нет",
+                innDate: "25.08.2010",
+                lastCheck: "30.10.2024"
+            },
+            {
+                id: 5, 
+                fullName: "Смирнова Ольга Дмитриевна", 
+                inn: "321654987032", 
+                snils: "321-654-987 04", 
+                passport: "4515 987654", 
+                region: "Казань", 
+                status: "active",
+                birthdate: "18.09.1975",
+                gender: "Женский",
+                birthplace: "г. Казань",
+                passportIssued: "ОУФМС по Республике Татарстан",
+                passportDate: "14.02.2011",
+                address: "ул. Баумана, д. 12, кв. 21",
+                phone: "+7 (904) 678-90-12",
+                email: "smirnova@example.com",
+                taxStatus: "Физическое лицо",
+                resident: "Да",
+                innDate: "12.05.2006",
+                lastCheck: "22.11.2024"
+            }
+        ];
+
+        // Данные истории для каждого налогоплательщика
+        const taxpayerHistory = {
+            1: [
+                {date: "12.11.2024", type: "Проверка", description: "Проверка декларации 3-НДФЛ", status: "Завершено", responsible: "Иванова М.С."},
+                {date: "05.11.2024", type: "Консультация", description: "Консультация по заполнению декларации", status: "Завершено", responsible: "Петров В.И."},
+                {date: "28.10.2024", type: "Уведомление", description: "Отправлено уведомление о задолженности", status: "Доставлено", responsible: "Сидоров А.К."}
+            ],
+            2: [
+                {date: "05.10.2024", type: "Проверка", description: "Выездная налоговая проверка", status: "Завершено", responsible: "Козлов Д.В."},
+                {date: "20.09.2024", type: "Запрос", description: "Запрос дополнительных документов", status: "В обработке", responsible: "Иванова М.С."}
+            ],
+            3: [
+                {date: "18.09.2024", type: "Блокировка", description: "Временная блокировка аккаунта", status: "Активно", responsible: "Администратор"},
+                {date: "10.09.2024", type: "Уведомление", description: "Уведомление о неполных данных", status: "Доставлено", responsible: "Сидоров А.К."}
+            ]
+        };
+
+        const chatData = [
+            {id: 1, userId: 1, userName: "Иванов Иван Иванович", lastMessage: "Добрый день, у меня вопрос по декларации...", unread: 2, time: "10:30", region: "Москва", inn: "123456789012"},
+            {id: 2, userId: 2, userName: "Петров Петр Петрович", lastMessage: "Спасибо за помощь с документами!", unread: 0, time: "09:15", region: "Санкт-Петербург", inn: "987654321098"},
+            {id: 3, userId: 4, userName: "Кузнецов Алексей Сергеевич", lastMessage: "Когда будет готов ответ по моему заявлению?", unread: 1, time: "Вчера", region: "Екатеринбург", inn: "789456123078"}
+        ];
+
+        const messagesData = [
+            {id: 1, text: "Здравствуйте! У меня вопрос по декларации 3-НДФЛ за 2024 год.", sender: "user", time: "10:28"},
+            {id: 2, text: "Добрый день, Иван Иванович! Чем могу помочь?", sender: "admin", time: "10:30"},
+            {id: 3, text: "Не могу понять, как заполнить раздел 2, пункт 2.1.", sender: "user", time: "10:32"},
+            {id: 4, text: "В таком случае в разделе 2 нужно поставить прочерк.", sender: "admin", time: "10:33"},
+            {id: 5, text: "Хорошо, спасибо за помощь!", sender: "user", time: "10:35"}
+        ];
+
+        const actionsData = [
+            {time: "10:30", action: "Добавлен налогоплательщик", user: "Иванов А.А.", object: "Иванов И.И. (ИНН: 1234567890)", status: "active"},
+            {time: "10:15", action: "Загружен документ", user: "Петрова М.С.", object: "Декларация 3-НДФЛ №8456", status: "active"},
+            {time: "09:45", action: "Отправлено уведомление", user: "Сидоров В.П.", object: "Сидорова А.В. (ИНН: 4561237890)", status: "pending"},
+            {time: "09:20", action: "Изменены данные", user: "Кузнецова Е.Д.", object: "Кузнецов А.С. (СНИЛС: 123-456-789 00)", status: "active"},
+            {time: "08:55", action: "Создан отчет", user: "Смирнов П.К.", object: "Отчет за ноябрь 2024", status: "active"}
+        ];
+
+        // Глобальные переменные
+        let currentTaxpayerId = null;
+        let currentFilteredTaxpayers = [...taxpayersData];
+
+        // Основные функции
+        function showNotification(text, type = 'info') {
+            const notification = document.getElementById('notification');
+            document.getElementById('notification-text').textContent = text;
+            
+            // Удаляем старые классы
+            notification.className = 'notification';
+            // Добавляем новый класс типа уведомления
+            if (type !== 'info') {
+                notification.classList.add(type);
+            }
+            
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function switchPage(pageId) {
+            // Скрыть все страницы
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Показать выбранную страницу
+            const pageElement = document.getElementById(`${pageId}-page`);
+            if (pageElement) {
+                pageElement.classList.add('active');
+            }
+            
+            // Обновить активный пункт меню
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[data-page="${pageId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Обновить заголовок
+            const titles = {
+                'dashboard': 'Дашборд администратора',
+                'taxpayers': 'Налогоплательщики',
+                'reports': 'Отчеты',
+                'chat': 'Чаты с пользователями',
+                'taxpayer-detail': 'Карточка налогоплательщика',
+                'settings': 'Настройки системы',
+                'logs': 'Журнал действий'
+            };
+            
+            if (titles[pageId] && pageId !== 'taxpayer-detail') {
+                document.querySelector('.page-title').textContent = titles[pageId];
+            }
+        }
+
+        function renderTaxpayersTable(taxpayers) {
+            const tbody = document.getElementById('taxpayers-table-body');
+            tbody.innerHTML = '';
+            
+            taxpayers.forEach(taxpayer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${taxpayer.fullName}</strong></td>
+                    <td>${taxpayer.inn}</td>
+                    <td>${taxpayer.snils}</td>
+                    <td>${taxpayer.passport}</td>
+                    <td>${taxpayer.region}</td>
+                    <td><span class="status-badge ${taxpayer.status === 'active' ? 'status-active' : 'status-inactive'}">${taxpayer.status === 'active' ? 'Активен' : 'Неактивен'}</span></td>
+                    <td>
+                        <button class="btn btn-outline btn-sm view-taxpayer-btn" data-id="${taxpayer.id}" title="Просмотр"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-outline btn-sm edit-taxpayer-btn" data-id="${taxpayer.id}" title="Редактировать"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-outline btn-sm chat-taxpayer-btn" data-id="${taxpayer.id}" title="Чат"><i class="fas fa-comment"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('shown-count').textContent = taxpayers.length;
+            document.getElementById('total-count').textContent = taxpayersData.length;
+        }
+
+        function loadTaxpayersTable() {
+            currentFilteredTaxpayers = [...taxpayersData];
+            renderTaxpayersTable(currentFilteredTaxpayers);
+        }
+
+        function loadActionsTable() {
+            const tbody = document.getElementById('actions-table-body');
+            tbody.innerHTML = '';
+            
+            actionsData.forEach(action => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${action.time}</td>
+                    <td>${action.action}</td>
+                    <td>${action.user}</td>
+                    <td>${action.object}</td>
+                    <td><span class="status-badge ${action.status === 'active' ? 'status-active' : 'status-pending'}">${action.status === 'active' ? 'Успешно' : 'В обработке'}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadChatList() {
+            const chatList = document.getElementById('chat-list');
+            chatList.innerHTML = '';
+            
+            chatData.forEach(chat => {
+                const chatItem = document.createElement('div');
+                chatItem.className = 'chat-item';
+                chatItem.setAttribute('data-chat-id', chat.id);
+                chatItem.innerHTML = `
+                    <div class="chat-item-header">
+                        <div class="chat-user">${chat.userName}</div>
+                        <div class="chat-time">${chat.time}</div>
+                    </div>
+                    <div class="chat-preview">${chat.lastMessage}</div>
+                    ${chat.unread > 0 ? `<span class="chat-unread">${chat.unread}</span>` : ''}
+                `;
+                
+                chatItem.addEventListener('click', function() {
+                    // Убрать активный класс у всех чатов
+                    document.querySelectorAll('.chat-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Добавить активный класс текущему чату
+                    this.classList.add('active');
+                    
+                    // Загрузить сообщения этого чата
+                    const chatId = parseInt(this.getAttribute('data-chat-id'));
+                    loadChatMessages(chatId);
+                });
+                
+                chatList.appendChild(chatItem);
+            });
+            
+            // Сделать первый чат активным
+            const firstChat = chatList.querySelector('.chat-item');
+            if (firstChat) {
+                firstChat.classList.add('active');
+                loadChatMessages(1);
+            }
+        }
+
+        function loadChatMessages(chatId) {
+            const chat = chatData.find(c => c.id === chatId);
+            if (!chat) return;
+            
+            // Обновить заголовок чата
+            document.getElementById('chat-user-name').textContent = chat.userName;
+            document.getElementById('chat-user-details').textContent = `ИНН: ${chat.inn}, Регион: ${chat.region}`;
+            
+            // Загрузить сообщения
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = '';
+            
+            messagesData.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.sender === 'admin' ? 'message-sent' : 'message-received'}`;
+                messageDiv.innerHTML = `
+                    <div>${msg.text}</div>
+                    <div class="message-time">${msg.time}</div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+            });
+            
+            // Прокрутить вниз
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        function searchTaxpayers() {
+            const searchValue = document.getElementById('search-input').value.toLowerCase();
+            const searchType = document.getElementById('search-type').value;
+            
+            if (!searchValue) {
+                currentFilteredTaxpayers = [...taxpayersData];
+            } else {
+                currentFilteredTaxpayers = taxpayersData.filter(taxpayer => {
+                    switch(searchType) {
+                        case 'name': 
+                            return taxpayer.fullName.toLowerCase().includes(searchValue);
+                        case 'inn':
+                            return taxpayer.inn.toLowerCase().includes(searchValue);
+                        case 'snils':
+                            return taxpayer.snils.toLowerCase().includes(searchValue);
+                        case 'passport':
+                            return taxpayer.passport.toLowerCase().includes(searchValue);
+                        case 'all':
+                            return Object.values(taxpayer).some(val => 
+                                String(val).toLowerCase().includes(searchValue)
+                            );
+                        default:
+                            return true;
+                    }
+                });
+            }
+            
+            renderTaxpayersTable(currentFilteredTaxpayers);
+            showNotification(`Найдено ${currentFilteredTaxpayers.length} записей`);
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            currentFilteredTaxpayers = [...taxpayersData];
+            renderTaxpayersTable(currentFilteredTaxpayers);
+            showNotification('Поиск очищен');
+        }
+
+        function updateSearchPlaceholder() {
+            const searchType = document.getElementById('search-type').value;
+            const input = document.getElementById('search-input');
+            const placeholders = {
+                'name': 'Введите ФИО (Иванов Иван Иванович)...',
+                'inn': 'Введите ИНН (10 или 12 цифр)...',
+                'snils': 'Введите СНИЛС (123-456-789 00)...',
+                'passport': 'Введите серию и номер паспорта (4508 123456)...',
+                'all': 'Введите данные для поиска...'
+            };
+            input.placeholder = placeholders[searchType] || 'Введите данные для поиска...';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                const messagesContainer = document.getElementById('chat-messages');
+                
+                // Добавить сообщение в UI
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message message-sent';
+                
+                const now = new Date();
+                const time = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                messageDiv.innerHTML = `
+                    <div>${message}</div>
+                    <div class="message-time">${time}</div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                input.value = '';
+                
+                // Прокрутить вниз
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                showNotification('Сообщение отправлено', 'success');
+            }
+        }
+
+        function searchChats() {
+            const searchValue = document.getElementById('chat-search-input').value.toLowerCase();
+            const chatItems = document.querySelectorAll('.chat-item');
+            
+            chatItems.forEach(item => {
+                const userName = item.querySelector('.chat-user').textContent.toLowerCase();
+                const preview = item.querySelector('.chat-preview').textContent.toLowerCase();
+                
+                if (userName.includes(searchValue) || preview.includes(searchValue) || !searchValue) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function showTaxpayerDetail(id) {
+            const taxpayer = taxpayersData.find(t => t.id === id);
+            if (!taxpayer) {
+                showNotification('Налогоплательщик не найден', 'error');
+                return;
+            }
+            
+            // Заполняем данные на странице
+            document.getElementById('detail-fullname').textContent = taxpayer.fullName;
+            document.getElementById('detail-birthdate').textContent = taxpayer.birthdate || 'Не указано';
+            document.getElementById('detail-gender').textContent = taxpayer.gender || 'Не указано';
+            document.getElementById('detail-birthplace').textContent = taxpayer.birthplace || 'Не указано';
+            document.getElementById('detail-inn').textContent = taxpayer.inn;
+            document.getElementById('detail-snils').textContent = taxpayer.snils;
+            document.getElementById('detail-passport').textContent = taxpayer.passport;
+            document.getElementById('detail-passport-issued').textContent = taxpayer.passportIssued || 'Не указано';
+            document.getElementById('detail-passport-date').textContent = taxpayer.passportDate || 'Не указано';
+            document.getElementById('detail-region').textContent = taxpayer.region;
+            document.getElementById('detail-address').textContent = taxpayer.address || 'Не указано';
+            document.getElementById('detail-phone').textContent = taxpayer.phone || 'Не указано';
+            document.getElementById('detail-email').textContent = taxpayer.email || 'Не указано';
+            document.getElementById('detail-tax-status').textContent = taxpayer.taxStatus || 'Не указано';
+            document.getElementById('detail-resident').textContent = taxpayer.resident || 'Не указано';
+            document.getElementById('detail-inn-date').textContent = taxpayer.innDate || 'Не указано';
+            document.getElementById('detail-last-check').textContent = taxpayer.lastCheck || 'Не указано';
+            
+            // Устанавливаем статус
+            const statusBadge = document.getElementById('detail-status');
+            statusBadge.textContent = taxpayer.status === 'active' ? 'Активен' : 'Неактивен';
+            statusBadge.className = taxpayer.status === 'active' ? 'status-badge status-active' : 'status-badge status-inactive';
+            
+            // Загружаем историю
+            loadTaxpayerHistory(id);
+            
+            // Сохраняем ID текущего налогоплательщика
+            currentTaxpayerId = id;
+            
+            // Переключаемся на страницу деталей
+            switchPage('taxpayer-detail');
+            document.querySelector('.page-title').textContent = taxpayer.fullName;
+        }
+
+        function loadTaxpayerHistory(id) {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+            
+            const history = taxpayerHistory[id] || [];
+            
+            if (history.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-light);">
+                        <i class="fas fa-history" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                        История взаимодействий отсутствует
+                    </td>
+                `;
+                tbody.appendChild(row);
+            } else {
+                history.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.type}</td>
+                        <td>${item.description}</td>
+                        <td><span class="status-badge ${item.status === 'Завершено' ? 'status-active' : item.status === 'В обработке' ? 'status-pending' : 'status-inactive'}">${item.status}</span></td>
+                        <td>${item.responsible}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        function editTaxpayer(id) {
+            const taxpayer = taxpayersData.find(t => t.id === id);
+            if (taxpayer) {
+                showNotification(`Редактирование: ${taxpayer.fullName}`, 'info');
+            }
+        }
+
+        function startChatFromTable(id) {
+            switchPage('chat');
+            
+            const taxpayer = taxpayersData.find(t => t.id === id);
+            if (taxpayer) {
+                let chat = chatData.find(c => c.userId === id);
+                if (!chat) {
+                    chat = {
+                        id: chatData.length + 1,
+                        userId: id,
+                        userName: taxpayer.fullName,
+                        lastMessage: "Новый чат",
+                        unread: 1,
+                        time: "Только что",
+                        region: taxpayer.region,
+                        inn: taxpayer.inn
+                    };
+                    chatData.push(chat);
+                    loadChatList();
+                }
+                
+                loadChatMessages(chat.id);
+                showNotification(`Чат с ${taxpayer.fullName} открыт`, 'success');
+            }
+        }
+
+        function sendNotificationToTaxpayer() {
+            if (!currentTaxpayerId) return;
+            
+            const taxpayer = taxpayersData.find(t => t.id === currentTaxpayerId);
+            showModal('Отправка уведомления',
+                `<p>Отправить уведомление налогоплательщику:</p>
+                <p><strong>${taxpayer.fullName}</strong></p>
+                <div style="margin: 15px 0;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Текст уведомления:</label>
+                    <textarea id="notification-text-input" style="width: 100%; padding: 10px; border: 1px solid var(--border-gray); border-radius: 3px; height: 100px;" placeholder="Введите текст уведомления..."></textarea>
+                </div>
+                <div style="margin: 15px 0;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Канал отправки:</label>
+                    <select id="notification-channel" style="width: 100%; padding: 8px; border: 1px solid var(--border-gray); border-radius: 3px;">
+                        <option value="email">Email</option>
+                        <option value="sms">SMS</option>
+                        <option value="system">Системное уведомление</option>
+                    </select>
+                </div>`);
+            
+            const confirmBtn = document.getElementById('modal-confirm');
+            const oldHandler = confirmBtn.onclick;
+            
+            confirmBtn.onclick = function() {
+                const text = document.getElementById('notification-text-input').value;
+                const channel = document.getElementById('notification-channel').value;
+                
+                if (!text.trim()) {
+                    showNotification('Введите текст уведомления', 'error');
+                    return;
+                }
+                
+                showNotification(`Уведомление отправлено налогоплательщику (${channel})`, 'success');
+                
+                // Добавляем запись в историю
+                if (!taxpayerHistory[currentTaxpayerId]) {
+                    taxpayerHistory[currentTaxpayerId] = [];
+                }
+                
+                const now = new Date();
+                const dateStr = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`;
+                
+                taxpayerHistory[currentTaxpayerId].unshift({
+                    date: dateStr,
+                    type: 'Уведомление',
+                    description: `Отправлено уведомление через ${channel === 'email' ? 'Email' : channel === 'sms' ? 'SMS' : 'систему'}`,
+                    status: 'Отправлено',
+                    responsible: 'Администратор'
+                });
+                
+                loadTaxpayerHistory(currentTaxpayerId);
+                closeModal();
+                confirmBtn.onclick = oldHandler;
+            };
+        }
+
+        function blockTaxpayer() {
+            if (!currentTaxpayerId) return;
+            
+            const taxpayer = taxpayersData.find(t => t.id === currentTaxpayerId);
+            
+            showModal('Блокировка налогоплательщика',
+                `<div style="text-align: center; padding: 10px 0;">
+                    <i class="fas fa-ban" style="font-size: 48px; color: var(--danger); margin-bottom: 15px;"></i>
+                    <h4 style="color: var(--danger); margin-bottom: 10px;">Блокировка налогоплательщика</h4>
+                    <p>Вы собираетесь заблокировать:</p>
+                    <p><strong>${taxpayer.fullName}</strong></p>
+                    <p>ИНН: ${taxpayer.inn}</p>
+                    <div style="margin: 15px 0;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Причина блокировки:</label>
+                        <select id="block-reason" style="width: 100%; padding: 8px; border: 1px solid var(--border-gray); border-radius: 3px;">
+                            <option value="suspicious">Подозрительная активность</option>
+                            <option value="documents">Неполный пакет документов</option>
+                            <option value="debt">Налоговая задолженность</option>
+                            <option value="other">Другая причина</option>
+                        </select>
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Комментарий:</label>
+                        <textarea id="block-comment" style="width: 100%; padding: 10px; border: 1px solid var(--border-gray); border-radius: 3px; height: 80px;" placeholder="Дополнительный комментарий..."></textarea>
+                    </div>
+                </div>`);
+            
+            const confirmBtn = document.getElementById('modal-confirm');
+            const oldHandler = confirmBtn.onclick;
+            
+            confirmBtn.onclick = function() {
+                const reason = document.getElementById('block-reason').value;
+                const comment = document.getElementById('block-comment').value;
+                
+                // Обновляем статус в данных
+                const taxpayerIndex = taxpayersData.findIndex(t => t.id === currentTaxpayerId);
+                if (taxpayerIndex !== -1) {
+                    taxpayersData[taxpayerIndex].status = 'inactive';
+                }
+                
+                // Обновляем статус на странице
+                const statusBadge = document.getElementById('detail-status');
+                statusBadge.textContent = 'Заблокирован';
+                statusBadge.className = 'status-badge status-inactive';
+                
+                // Добавляем запись в историю
+                if (!taxpayerHistory[currentTaxpayerId]) {
+                    taxpayerHistory[currentTaxpayerId] = [];
+                }
+                
+                const now = new Date();
+                const dateStr = `${now.getDate().toString().padStart(2, '0')}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getFullYear()}`;
+                
+                taxpayerHistory[currentTaxpayerId].unshift({
+                    date: dateStr,
+                    type: 'Блокировка',
+                    description: `Блокировка аккаунта. Причина: ${reason === 'suspicious' ? 'Подозрительная активность' : reason === 'documents' ? 'Неполные документы' : reason === 'debt' ? 'Налоговая задолженность' : 'Другая причина'}`,
+                    status: 'Активно',
+                    responsible: 'Администратор'
+                });
+                
+                loadTaxpayerHistory(currentTaxpayerId);
+                showNotification('Налогоплательщик заблокирован', 'success');
+                closeModal();
+                confirmBtn.onclick = oldHandler;
+                
+                // Обновляем таблицу налогоплательщиков
+                loadTaxpayersTable();
+            };
+        }
+
+        // Модальное окно
+        function showModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function confirmModal() {
+            showNotification('Действие подтверждено', 'success');
+            closeModal();
+        }
+
+        function logout() {
+            showModal('Подтверждение выхода', 
+                '<div style="text-align: center; padding: 10px 0;">' +
+                '<i class="fas fa-sign-out-alt" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 15px;"></i>' +
+                '<h4 style="color: var(--header-blue); margin-bottom: 10px;">Выход из системы</h4>' +
+                '<p>Вы уверены, что хотите выйти из административной панели?</p>' +
+                '<p><small style="color: var(--text-gray);">Все несохраненные данные будут потеряны.</small></p>' +
+                '</div>');
+            
+            const confirmBtn = document.getElementById('modal-confirm');
+            const cancelBtn = document.getElementById('modal-cancel');
+            
+            const oldConfirmHandler = confirmBtn.onclick;
+            const oldCancelHandler = cancelBtn.onclick;
+            
+            confirmBtn.onclick = function() {
+                showNotification('Выход выполнен успешно. Перенаправление...', 'success');
+                setTimeout(() => {
+                    // В реальном приложении здесь будет редирект
+                    console.log('Перенаправление на страницу входа');
+                }, 1500);
+                closeModal();
+                confirmBtn.onclick = oldConfirmHandler;
+                cancelBtn.onclick = oldCancelHandler;
+            };
+            
+            cancelBtn.onclick = function() {
+                closeModal();
+                confirmBtn.onclick = oldConfirmHandler;
+                cancelBtn.onclick = oldCancelHandler;
+            };
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Установка текущей даты
+            const now = new Date();
+            const dateElement = document.getElementById('current-date');
+            dateElement.textContent = now.toLocaleDateString('ru-RU', { 
+                day: '2-digit', 
+                month: 'long', 
+                year: 'numeric',
+                weekday: 'long' 
+            });
+            
+            // Загрузка данных
+            loadActionsTable();
+            loadTaxpayersTable();
+            loadChatList();
+            updateSearchPlaceholder();
+            
+            // Навигация
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    switchPage(pageId);
+                });
+            });
+            
+            // Верхние ссылки
+            document.querySelectorAll('.nav-top-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const linkText = this.textContent.toLowerCase().trim();
+                    
+                if (linkText.includes('новости')) {
+                    // Показываем новости Федресурс
+                    showModal('Новости банкротства', `
+                        <div style="text-align: center; padding: 20px;">
+                            <i class="fas fa-newspaper" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 20px;"></i>
+                            <h4 style="color: var(--header-blue); margin-bottom: 15px;">Новости Федресурс</h4>
+                            <p style="color: var(--text-gray); margin-bottom: 20px;">
+                                Актуальные новости о банкротстве с сайта Федресурс
+                            </p>
+                            
+                            <div style="background: #f8f9fa; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                                <h5 style="color: var(--header-blue); margin-bottom: 10px;">Последние новости:</h5>
+                                <ul style="text-align: left; margin: 0; padding-left: 20px;">
+                                    <li style="margin-bottom: 8px;">Изменения в процедуре банкротства с 2024 года</li>
+                                    <li style="margin-bottom: 8px;">Новые требования к финансовым управляющим</li>
+                                    <li style="margin-bottom: 8px;">Упрощена процедура списания долгов</li>
+                                    <li>Обновлен реестр арбитражных управляющих</li>
+                                </ul>
+                            </div>
+                            
+                            <a href="https://fedresurs.ru/news?proj=Bankrot" target="_blank" 
+                            class="btn btn-primary" style="margin-top: 10px; padding: 10px 25px;">
+                                <i class="fas fa-external-link-alt"></i> Перейти на Федресурс
+                            </a>
+                            
+                            <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                                Информация обновляется ежедневно
+                            </p>
+                        </div>
+                    `);
+                }
+                    else if (linkText.includes('помощь') || linkText.includes('help')) {
+                        showModal('Помощь', 
+                            '<div style="padding: 20px;">' +
+                            '<h4>Справочная информация</h4>' +
+                            '<p><strong>Для получения помощи:</strong></p>' +
+                            '<ul style="margin-left: 20px; margin-top: 15px;">' +
+                            '<li>Обратитесь в службу технической поддержки</li>' +
+                            '<li>Телефон: 8-800-100-00-00</li>' +
+                            '<li>Email: support@nalog.ru</li>' +
+                            '</ul>' +
+                            '<div style="text-align: center; margin-top: 30px;">' +
+                            '<button class="btn btn-primary" onclick="closeModal()">Закрыть</button>' +
+                            '</div>' +
+                            '</div>');
+                    }
+                    else if (linkText.includes('контакты') || linkText.includes('contacts')) {
+                        showModal('Контакты',
+                            '<div style="padding: 20px;">' +
+                            '<h4>Контакты Федеральной налоговой службы</h4>' +
+                            '<p><strong>Адрес:</strong> г. Москва, ул. Неглинная, д. 23</p>' +
+                            '<p><strong>Телефон:</strong> 8-800-222-22-22</p>' +
+                            '<p><strong>Email:</strong> info@nalog.gov.ru</p>' +
+                            '<p><strong>Часы работы:</strong> Пн-Пт с 9:00 до 18:00</p>' +
+                            '<div style="text-align: center; margin-top: 30px;">' +
+                            '<button class="btn btn-primary" onclick="closeModal()">Закрыть</button>' +
+                            '</div>' +
+                            '</div>');
+                    }
+                    else if (linkText.includes('главная') || linkText.includes('home')) {
+                        switchPage('dashboard');
+                        showNotification('Переход на главную страницу', 'info');
+                    }
+                });
+            });
+            
+            // Кнопки на дашборде
+            document.querySelector('.export-btn').addEventListener('click', () => showNotification('Экспорт данных', 'info'));
+            document.querySelector('.refresh-btn').addEventListener('click', () => showNotification('Данные обновлены', 'success'));
+            document.querySelector('.show-all-btn').addEventListener('click', () => showNotification('Показаны все записи', 'info'));
+            
+            // Кнопки на странице налогоплательщиков
+            document.querySelector('.add-taxpayer-btn').addEventListener('click', () => {
+                showModal('Добавление налогоплательщика', 
+                    '<p>Форма добавления нового налогоплательщика.</p>' +
+                    '<p>В реальном приложении здесь будут поля для ввода данных.</p>');
+            });
+            document.querySelector('.import-btn').addEventListener('click', () => showNotification('Импорт данных', 'info'));
+            document.querySelector('.search-btn').addEventListener('click', searchTaxpayers);
+            document.querySelector('.clear-search-btn').addEventListener('click', clearSearch);
+            document.querySelector('#search-type').addEventListener('change', updateSearchPlaceholder);
+            document.querySelector('#search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchTaxpayers();
+            });
+            
+            // Обработчики для кнопок в таблице налогоплательщиков (делегирование событий)
+            document.getElementById('taxpayers-table-body').addEventListener('click', function(e) {
+                const target = e.target;
+                const btn = target.closest('.view-taxpayer-btn, .edit-taxpayer-btn, .chat-taxpayer-btn');
+                
+                if (btn) {
+                    const id = parseInt(btn.getAttribute('data-id'));
+                    if (btn.classList.contains('view-taxpayer-btn')) {
+                        showTaxpayerDetail(id);
+                    } else if (btn.classList.contains('edit-taxpayer-btn')) {
+                        editTaxpayer(id);
+                    } else if (btn.classList.contains('chat-taxpayer-btn')) {
+                        startChatFromTable(id);
+                    }
+                }
+            });
+            
+            // Пагинация
+            document.querySelector('.prev-page-btn').addEventListener('click', () => {
+                const activeBtn = document.querySelector('.page-btn.active');
+                const currentPage = parseInt(activeBtn.textContent);
+                if (currentPage > 1) {
+                    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector(`.page-${currentPage - 1}`).classList.add('active');
+                    showNotification(`Страница ${currentPage - 1}`, 'info');
+                } else {
+                    showNotification('Вы на первой странице', 'warning');
+                }
+            });
+
+            document.querySelector('.next-page-btn').addEventListener('click', () => {
+                const activeBtn = document.querySelector('.page-btn.active');
+                const currentPage = parseInt(activeBtn.textContent);
+                if (currentPage < 5) {
+                    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector(`.page-${currentPage + 1}`).classList.add('active');
+                    showNotification(`Страница ${currentPage + 1}`, 'info');
+                } else {
+                    showNotification('Вы на последней странице', 'warning');
+                }
+            });
+            
+            // Кнопки пагинации
+            document.querySelectorAll('.page-btn:not(.prev-page-btn):not(.next-page-btn)').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    showNotification(`Страница ${this.textContent}`, 'info');
+                });
+            });
+            
+            // Кнопки на странице чатов
+            document.querySelector('.archive-chat-btn').addEventListener('click', () => showNotification('Чат архивирован', 'info'));
+            document.querySelector('.print-chat-btn').addEventListener('click', () => showNotification('Печать чата', 'info'));
+            document.querySelector('.chat-info-btn').addEventListener('click', () => showNotification('Информация о чате', 'info'));
+            document.querySelector('.chat-menu-btn').addEventListener('click', () => showNotification('Меню чата', 'info'));
+            document.querySelector('.send-message-btn').addEventListener('click', sendMessage);
+            document.querySelector('#message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            document.querySelector('#chat-search-input').addEventListener('input', searchChats);
+            
+            // Модальное окно
+            document.querySelector('#modal-close').addEventListener('click', closeModal);
+            document.querySelector('#modal-cancel').addEventListener('click', closeModal);
+            document.querySelector('#modal-confirm').addEventListener('click', confirmModal);
+            
+            // Выход
+            document.querySelector('#logout-btn').addEventListener('click', logout);
+            
+            // Кнопки на странице деталей налогоплательщика
+            document.getElementById('back-to-taxpayers-btn').addEventListener('click', () => {
+                switchPage('taxpayers');
+            });
+            
+            document.getElementById('send-notification-btn').addEventListener('click', sendNotificationToTaxpayer);
+            document.getElementById('start-chat-detail-btn').addEventListener('click', () => {
+                if (currentTaxpayerId) {
+                    startChatFromTable(currentTaxpayerId);
+                }
+            });
+            
+            document.getElementById('download-docs-btn').addEventListener('click', () => {
+                showNotification('Скачивание документов...', 'info');
+            });
+            document.getElementById('block-taxpayer-btn').addEventListener('click', blockTaxpayer);
+            document.getElementById('print-taxpayer-btn').addEventListener('click', () => {
+                showNotification('Печать карточки налогоплательщика', 'info');
+            });
+            document.getElementById('edit-detail-btn').addEventListener('click', () => {
+                if (currentTaxpayerId) {
+                    editTaxpayer(currentTaxpayerId);
+                }
+            });
+            document.getElementById('show-all-history').addEventListener('click', () => {
+                showNotification('Показана вся история', 'info');
+            });
+        });
+    </script>
+</body>
+</html>

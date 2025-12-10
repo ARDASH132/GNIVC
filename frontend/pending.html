@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ожидание проверки</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .pending-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 150, 0.1);
+            text-align: center;
+        }
+        
+        .pending-icon {
+            font-size: 64px;
+            color: #ffa726;
+            margin-bottom: 20px;
+        }
+        
+        .pending-title {
+            color: #1a237e;
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .pending-message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .timer {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a73e8;
+            margin: 30px 0;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .info-box {
+            background-color: #e8f0fe;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+            border-left: 4px solid #1a73e8;
+        }
+        
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: linear-gradient(135deg, #0d62d9 0%, #0b3d91 100%);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pending-container">
+            <div class="pending-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            
+            <h1 class="pending-title">Ожидание проверки администратора</h1>
+            
+            <p class="pending-message">
+                Ваши паспортные данные не совпадают с предыдущими. 
+                Требуется дополнительная проверка администратором системы.
+            </p>
+            
+            <div class="timer" id="timer">00:00:00</div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> Что происходит сейчас?</h3>
+                <ul>
+                    <li>Администратор проверяет ваши новые паспортные данные</li>
+                    <li>Сверяет с предыдущей информацией в системе</li>
+                    <li>При необходимости может запросить дополнительные документы</li>
+                </ul>
+                
+                <h3 style="margin-top: 15px;"><i class="fas fa-clock"></i> Время проверки:</h3>
+                <ul>
+                    <li>Рабочие дни: 1-2 часа</li>
+                    <li>Выходные дни: до 24 часов</li>
+                    <li>Вы получите уведомление по завершении проверки</li>
+                </ul>
+            </div>
+            
+            <a href="index.html" class="btn-back">
+                <i class="fas fa-home"></i>
+                Вернуться на главную
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Таймер ожидания
+        let seconds = 0;
+        const timerElement = document.getElementById('timer');
+        
+        function updateTimer() {
+            seconds++;
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            timerElement.textContent = 
+                `${hours.toString().padStart(2, '0')}:` +
+                `${minutes.toString().padStart(2, '0')}:` +
+                `${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Запускаем таймер
+        setInterval(updateTimer, 1000);
+        
+        // Проверяем статус каждые 30 секунд
+        async function checkVerificationStatus() {
+            try {
+                // Получаем ИНН из localStorage (или из URL)
+                const inn = localStorage.getItem('currentUserINN');
+                
+                if (inn) {
+                    const response = await fetch(`/api/auth/user-status/${inn}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.canLogin) {
+                        // Если проверка завершена, перенаправляем на главную
+                        window.location.href = '/HtmlPagek.html';
+                    }
+                }
+            } catch (error) {
+                console.log('Проверка статуса:', error);
+            }
+        }
+        
+        // Начинаем проверку статуса
+        setInterval(checkVerificationStatus, 30000);
+        
+        // Первая проверка через 5 секунд
+        setTimeout(checkVerificationStatus, 5000);
+    </script>
+</body>
+</html>
